@@ -3,50 +3,80 @@ import os
 from pathlib import Path
 import json
 import click
+import yaml
+from yaml.loader import SafeLoader
 
-# TODO: put this in a yaml file so it can be imported and updated with new categories
-SUBDIRECTORIES = {
-    "DOCUMENTS": ['.pdf', '.rtf', '.txt','.docx', '.xlsx'],
-    "AUDIO": ['.m4a', '.m4b', '.mp3'],
-    "VIDEOS": ['.mov','.avi','.mp4'],
-    "IMAGES": ['.jpg','.jpeg','.png']
-}
+# getting the folder mappings here:
 
-def pickDirectory(value):
-    """this function returns the category of the file based on it's extensions"""
-    for category, extensions in SUBDIRECTORIES.items():
+def getDirectoryMapping()->dict:
+    """parses the dir_mappings yml file and returns the folders with the associated file extensions as a dict.
+
+    Returns:
+        dict: contains the folder categorisations.
+    """
+    with open('dir_mappings.yml', 'r') as f:
+        dir_mapping = yaml.load(f, Loader=SafeLoader)
+        return dir_mapping
+
+
+def pickDirectory(value:Path)->str:
+    """Returns the category of the file based on it's extensions
+
+    Args:
+        value (Path): the path to a single file to be processed.
+
+    Returns:
+        str: returns the directory mapping to the extension of the file passed.
+    """
+    
+    # getting the directory mappings
+    directories = getDirectoryMapping()
+    
+    for category, extensions in directories.items():
         for extension in extensions:
             if extension == value:
                 return category
     return 'MISC'
 
 @click.command()
-@click.option('--filepath' ,'-f', default=os.getcwd(), help='path to messy folder if not specified it checks the current directory!')
-def organizeDirectory(filepath:str)->None:
+@click.option('--dir' ,'-d', default=os.getcwd(), help='path to messy folder if not specified it checks the current directory!')
+def organizeDirectory(dir:str)->None:
     """Puts files in the specified directory(or current directory) into their specific 
     category based on their file type.
 
     Args:
-        filepath (str): the path to the directory that needs to be cleaned up
+        dir (str): the path to the directory that needs to be cleaned up
     """
-    # TODO: add an echo to show progress.
-    for item in os.scandir(filepath):
+    click.echo(f"Scanning this clumsy folder:{dir}......")
+    click.echo(f"Creating new folders......")
+    click.echo("Mapping files to the new folders......")
+    for item in os.scandir(dir):
         # returns a list of all files in the current directory
-        if item.is_dir(): # making sure categories are skipped
+        if item.is_dir(): # making sure folders are skipped
             continue
-
+        
         filePath = Path(item) # this gets the path of each item
-        filetype = filePath.suffix.lower() # this isolates the extension of each file
-        directory = pickDirectory(filetype)
-        directoryPath = Path(directory)  # casts the directory to a file path
+        filetype = filePath.suffix.lower() # isolates the extension of each file
+        directory = pickDirectory(filetype) # fetch the associated extension
+        directoryPath = Path(dir,directory)  # casts the directory to a file path
+        
+        # creates the category directory inside the <dir> specified.
+        
         if directoryPath.is_dir() != True:
             directoryPath.mkdir()
-        filePath.rename(directoryPath.joinpath(filePath))
 
-# TODO: add this to a group so we can also display the contents.
-def showDefaultDirectories():
-    """this returns the default directories in json format"""
-    return json.dumps(SUBDIRECTORIES)
+        # moves the files to the associated folders created.
+        filePath.rename(Path(dir,directoryPath,filePath.name))
+        
+    click.echo("Done!! Enjoy some sanity!!")
+        
+
+def showMappings():
+    """Returns the default directories in json format"""
+
+    # getting the directory mappings
+    directories = getDirectoryMapping()
+    return json.dumps(directories, indent=2)
 
 
 if __name__ == "__main__":

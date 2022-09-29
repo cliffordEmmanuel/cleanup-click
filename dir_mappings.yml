@@ -1,0 +1,22 @@
+# this contains the folders and the file extensions associated with them. 
+# You can add a new folder section or add more file extensions as you deem fit.
+
+
+DOCUMENTS:
+  - '.pdf' 
+  - '.rtf' 
+  - '.txt'
+  - '.docx'
+  - '.xlsx'
+AUDIO: 
+  - '.m4a'
+  - '.m4b'
+  - '.mp3'
+VIDEOS: 
+  - '.mov'
+  - '.avi'
+  - '.mp4'
+IMAGES:
+  - '.jpg'
+  - '.jpeg'
+  - '.png'
