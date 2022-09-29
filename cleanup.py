@@ -6,7 +6,7 @@ import click
 import yaml
 from yaml.loader import SafeLoader
 
-# getting the folder mappings here:
+
 
 def getDirectoryMapping()->dict:
     """parses the dir_mappings yml file and returns the folders with the associated file extensions as a dict.
@@ -31,7 +31,7 @@ def pickDirectory(value:Path)->str:
     
     # getting the directory mappings
     directories = getDirectoryMapping()
-    
+
     for category, extensions in directories.items():
         for extension in extensions:
             if extension == value:
