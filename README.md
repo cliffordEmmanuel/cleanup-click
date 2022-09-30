@@ -17,6 +17,7 @@ _When the script is executed it does the following:_
 - Clone this repo to access the code.
 - Create a virtual environment using the **requirements.txt** file
 - Ran using this command: `python cleanup.py -d <'path of directory to be cleaned'>`
+- To access the help type this: `python cleanup.py --help`
 
 
 # Creating a basic click app.
